@@ -1,5 +1,6 @@
 package com.esjohnson.simplebrew;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -20,7 +21,8 @@ public class MainActivity extends ActionBarActivity {
 
     brewDBHandler brewDB;
     ListView brewList;
-    //startinggggg
+    //ArrayAdapter<String> brewListAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,28 +30,30 @@ public class MainActivity extends ActionBarActivity {
 
         final Button btnAeroPress = (Button) findViewById(R.id.btnAeroPress);
         final Button btnPourOver = (Button) findViewById(R.id.btnPourOver);
-        final Button btnCreaBrew = (Button) findViewById(R.id.btnCreateBrew);
+        final Button btnCreateBrew = (Button) findViewById(R.id.btnCreateBrew);
         brewList = (ListView) findViewById(R.id.brewList);
         brewDB = new brewDBHandler(this,null,null,1);
+        //brewListAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,brewDB.getAllBrewNames());
+        //brewList.setAdapter(brewListAdapter);
 
         //setting the onclick listeners
-        btnAeroPress.setOnClickListener(new View.OnClickListener(){
+        btnAeroPress.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view){
-                sendMessage(view,btnAeroPress.getId());
+            public void onClick(View view) {
+                sendMessage(view, btnAeroPress.getId());
             }
         });
-        btnPourOver.setOnClickListener(new View.OnClickListener(){
+        btnPourOver.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view){
-                sendMessage(view,btnPourOver.getId());
+            public void onClick(View view) {
+                sendMessage(view, btnPourOver.getId());
             }
         });
-        btnCreaBrew.setOnClickListener(new View.OnClickListener(){
+        btnCreateBrew.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, CreateBrewActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, 1);
             }
         });
 
@@ -62,7 +66,22 @@ public class MainActivity extends ActionBarActivity {
 
             }
         });
+
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == 1){
+            if(resultCode == RESULT_OK){
+                populateBrews();
+               //brewListAdapter.notifyDataSetChanged();
+            }
+            if(resultCode == RESULT_CANCELED){
+                //did not complete form....
+            }
+        }
+    }
+
     private void populateBrews(){
         brewDB = new brewDBHandler(this,null,null,1);
         String[] fromDB = new String[]{ "name" };
@@ -71,7 +90,6 @@ public class MainActivity extends ActionBarActivity {
         brewList = (ListView) findViewById(R.id.brewList);
         brewList.setAdapter(adapter);
     }
-
     //creates new intent
     public void sendMessage(View view, int id){
         Intent intent = new Intent(MainActivity.this, BrewActivity.class);

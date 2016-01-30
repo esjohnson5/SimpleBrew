@@ -1,5 +1,7 @@
 package com.esjohnson.simplebrew;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
@@ -20,6 +22,7 @@ public class CreateBrewActivity extends FragmentActivity {
     EditText brewStir;
     EditText brewTime;
     Button create;
+    boolean itemCreated = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,25 +43,44 @@ public class CreateBrewActivity extends FragmentActivity {
             public void onClick(View v) {
                 Runnable brewRun; //threading the DB add and object creation
                 Thread brewThread;
-                brewRun = new Runnable(){
+                brewRun = new Runnable() {
                     @Override
                     public void run() {
                         brewDB.addBrew(createBrewObj());
+                        sendBack();
                     }
                 };
                 brewThread = new Thread(brewRun);
                 brewThread.start();
+                //sending return intent
             }
         });
     }
+
+    /**
+     * sends back result to main activity when brew has been completed
+     */
+    private void sendBack(){
+        Intent returnIntent = getIntent();
+        if(itemCreated) {
+            setResult(Activity.RESULT_OK, returnIntent);
+            finish();
+        }
+        if(!itemCreated) {
+            setResult(Activity.RESULT_CANCELED, returnIntent);
+            finish();
+        }
+    }
+
     /**
      * creates a new brew object
      * @return brewObj to be sent to the DB
      */
-    public brew createBrewObj(){
+    private brew createBrewObj(){
         brew userBrew = new brew(brewName.getText().toString(),brewGrind.getText().toString(),
                 Integer.parseInt(brewAmount.getText().toString()),Long.parseLong(brewTime.getText().toString()),
                 Long.parseLong(brewBloom.getText().toString()),Long.parseLong(brewStir.getText().toString()));
+        itemCreated = true;
         return userBrew;
     }
 }

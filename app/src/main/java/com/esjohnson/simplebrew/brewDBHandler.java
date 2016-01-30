@@ -91,7 +91,7 @@ public class brewDBHandler extends SQLiteOpenHelper {
         ArrayList<String> brewNameArray = new ArrayList<String>();
         int i =0;
         SQLiteDatabase db  = getWritableDatabase();
-        String query = "SELECT " + COLUMN_NAME + "FROM " + TABLE_BREW;
+        String query = "SELECT " + COLUMN_NAME + " FROM " + TABLE_BREW;
 
         Cursor c = db.rawQuery(query,null);
         c.moveToFirst();
