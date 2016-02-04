@@ -1,54 +1,36 @@
 package com.esjohnson.simplebrew;
 
-import android.app.Activity;
+
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
-import java.util.ArrayList;
 
 public class MainActivity extends ActionBarActivity {
 
     brewDBHandler brewDB;
     ListView brewList;
-    //ArrayAdapter<String> brewListAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        final Button btnAeroPress = (Button) findViewById(R.id.btnAeroPress);
-        final Button btnPourOver = (Button) findViewById(R.id.btnPourOver);
+        //setting UI compnents
         final Button btnCreateBrew = (Button) findViewById(R.id.btnCreateBrew);
         brewList = (ListView) findViewById(R.id.brewList);
         brewDB = new brewDBHandler(this,null,null,1);
-        //brewListAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,brewDB.getAllBrewNames());
-        //brewList.setAdapter(brewListAdapter);
-
+        //populates brew table from DB
+        populateBrews();
         //setting the onclick listeners
-        btnAeroPress.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sendMessage(view, btnAeroPress.getId());
-            }
-        });
-        btnPourOver.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sendMessage(view, btnPourOver.getId());
-            }
-        });
         btnCreateBrew.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -56,14 +38,18 @@ public class MainActivity extends ActionBarActivity {
                 startActivityForResult(intent, 1);
             }
         });
-
-        //populating table
-        populateBrews();
         //adding listview click listeners
         brewList.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
+                Intent listIntent = new Intent(MainActivity.this,BrewActivity.class);
+                listIntent.putExtra("id",id);
+                Log.d("clicked item"," " + id);
+                startActivity(listIntent);
+                //needs to start intent for listview clicks
+                //should pass database item number or name so brew activity can acccess the
+                //correct brew from the brewDB
             }
         });
 
@@ -74,7 +60,6 @@ public class MainActivity extends ActionBarActivity {
         if(requestCode == 1){
             if(resultCode == RESULT_OK){
                 populateBrews();
-               //brewListAdapter.notifyDataSetChanged();
             }
             if(resultCode == RESULT_CANCELED){
                 //did not complete form....
@@ -82,6 +67,9 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    /**
+     * populates the brew listview based on the database entries into table_brew
+     */
     private void populateBrews(){
         brewDB = new brewDBHandler(this,null,null,1);
         String[] fromDB = new String[]{ "name" };
@@ -90,7 +78,7 @@ public class MainActivity extends ActionBarActivity {
         brewList = (ListView) findViewById(R.id.brewList);
         brewList.setAdapter(adapter);
     }
-    //creates new intent
+    //creates new intent for button clicks
     public void sendMessage(View view, int id){
         Intent intent = new Intent(MainActivity.this, BrewActivity.class);
         intent.putExtra("id", id);

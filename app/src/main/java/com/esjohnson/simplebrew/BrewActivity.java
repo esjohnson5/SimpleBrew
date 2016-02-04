@@ -1,11 +1,17 @@
 package com.esjohnson.simplebrew;
 
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -33,29 +39,28 @@ public class BrewActivity extends FragmentActivity {
 
         //getting intent information
         brewDB = new brewDBHandler(this,null,null,1);
+        ListView specList;
+        brewObj = new brew();
 
+        //getting extras from intent
         Intent passedIntent = getIntent();
-        int id = passedIntent.getIntExtra("id",0);
-        if(id == 0){
-            //error happens here
-        }
-        else {
-            if(id==R.id.btnAeroPress) {
-                //needs to be threaded to retrieve brew object from SQLite data base and parse JSON
-                //default brew values need to be set in strings.xml
-                brewSpecs = new String[]{"Grind: Fine", "Amount: 17 Grams", "Bloom Time: 30 Seconds", "Brew Time: 1:30"};
-            }
-            if(id==R.id.btnPourOver){
-                //assign new values to the following brew specs
-            }
-        }
+        long id = passedIntent.getLongExtra("id", 0);
+        //setting up cursor adapter and list view
+        specList = (ListView)findViewById(R.id.setupList);
+        Log.d("cursor",DatabaseUtils.dumpCursorToString(brewDB.getAllSpecs(id)));
+        brewCursorAdapter specListAdapter = new brewCursorAdapter(this, brewDB.getAllSpecs(id),0);
+        specList.setAdapter(specListAdapter);
+
+        brewSpecs = new String[]{"Grind:" + brewObj.getGrind(), "Amount: 17 Grams", "Bloom Time: 30 Seconds", "Brew Time: 1:30"};
+
         //putting brew specs into list view
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,brewSpecs);
-        final ListView listView = (ListView)findViewById(R.id.setupList);
-        listView.setAdapter(adapter);
+        //ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,R.layout.brew_spec_layout,brewSpecs);
+
+        //setting buttons and progress bar
         mTextView = (TextView) findViewById(R.id.textView);
         Button btnStart = (Button)findViewById(R.id.btnStartBrew);
         brewProgress = (ProgressBar)findViewById(R.id.brewProgress);
+        brewProgress.setProgress(brewProgress.getMax());
         //setting onclick listener
         btnStart.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -105,3 +110,4 @@ public class BrewActivity extends FragmentActivity {
         brewThread.start();
     }
 }
+

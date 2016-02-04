@@ -87,23 +87,43 @@ public class brewDBHandler extends SQLiteOpenHelper {
         db.close();
         return dbString;
     }
-    public ArrayList<String> getAllBrewNames(){
-        ArrayList<String> brewNameArray = new ArrayList<String>();
-        int i =0;
+    public brew getBrewObjById(Long id){
         SQLiteDatabase db  = getWritableDatabase();
-        String query = "SELECT " + COLUMN_NAME + " FROM " + TABLE_BREW;
-
-        Cursor c = db.rawQuery(query,null);
+        brew brewObj = new brew();
+        String query = "SELECT * FROM " + TABLE_BREW + " WHERE " + COLUMN_ID + "='" + id + "'";
+        Cursor c =  db.rawQuery(query,null);
         c.moveToFirst();
-
-        while(!c.isAfterLast()){
-            if(c.getString(c.getColumnIndex("name")) != null){
-                brewNameArray.add(c.getString(c.getColumnIndex("name")));
-            }
+        if (c.getString(c.getColumnIndex("_id")) != null) {
+            brewObj.setId(c.getLong(c.getColumnIndex("_id")));
+        }
+        if (c.getString(c.getColumnIndex("name")) != null) {
+            brewObj.setName(c.getString(c.getColumnIndex("name")));
+        }
+        if (c.getString(c.getColumnIndex("grind")) != null) {
+            brewObj.setGrind(c.getString(c.getColumnIndex("grind")));
+        }
+        if (c.getString(c.getColumnIndex("amount")) != null) {
+            brewObj.setAmount(c.getInt(c.getColumnIndex("amount")));
+        }
+        if (c.getString(c.getColumnIndex("bloomtime")) != null) {
+            brewObj.setBloomTimeMillis(c.getLong(c.getColumnIndex("bloomtime")));
+        }
+        if (c.getString(c.getColumnIndex("brewtime")) != null) {
+            brewObj.setBrewTimeMillis(c.getLong(c.getColumnIndex("brewtime")));
+        }
+        if (c.getString(c.getColumnIndex("stirtime")) != null) {
+            brewObj.setStirTimeMillis(c.getLong(c.getColumnIndex("stirtime")));
         }
         c.close();
-        db.close();
-        return brewNameArray;
+        return brewObj;
+    }
+    //tester for cursor adapter
+    public Cursor getAllSpecs(Long id){
+        SQLiteDatabase db  = getWritableDatabase();
+        String query = "SELECT * FROM " + TABLE_BREW + " WHERE " + COLUMN_ID + "='" + id + "'";
+        Cursor c =  db.rawQuery(query,null);
+        c.moveToFirst();
+        return c;
     }
 
     public Cursor getAllNames(){
@@ -121,6 +141,5 @@ public class brewDBHandler extends SQLiteOpenHelper {
                 null,
                 null,
                 null);
-
     }
 }

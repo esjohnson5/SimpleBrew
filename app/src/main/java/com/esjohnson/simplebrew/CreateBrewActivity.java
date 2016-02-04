@@ -14,6 +14,7 @@ import android.widget.EditText;
  *
  */
 public class CreateBrewActivity extends FragmentActivity {
+    //vars
     brewDBHandler brewDB;
     EditText brewName;
     EditText brewGrind;
@@ -52,7 +53,6 @@ public class CreateBrewActivity extends FragmentActivity {
                 };
                 brewThread = new Thread(brewRun);
                 brewThread.start();
-                //sending return intent
             }
         });
     }

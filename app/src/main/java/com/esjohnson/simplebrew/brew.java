@@ -10,7 +10,7 @@ package com.esjohnson.simplebrew;
  *
  */
 public class brew {
-    private String _id;
+    private long _id;
     private String name;
     private String grind;
     private int amount;
@@ -46,7 +46,7 @@ public class brew {
 
     //setters
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this._id =id;
     }
     public void setName(String name) {
@@ -69,7 +69,7 @@ public class brew {
     }
     //getters
 
-    public String getId() {
+    public long getId() {
         return this._id;
     }
     public String getName() {

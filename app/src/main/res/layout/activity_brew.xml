@@ -25,7 +25,6 @@
         android:layout_height="wrap_content"
         android:text="New Text"
         android:textAlignment="center"
-        android:background="@drawable/circle_text"
         android:id="@+id/textView"
         android:layout_above="@+id/btnStartBrew"
         android:layout_alignParentRight="true"
@@ -34,12 +33,11 @@
         android:layout_alignParentStart="true" />
     <ProgressBar
         android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_height="300dp"
         android:id="@+id/brewProgress"
-        android:layout_above="@+id/textView"
-        android:progressDrawable="@drawable/circular_progress"
-        android:background="@drawable/circular"
         style="?android:attr/progressBarStyleHorizontal"
+        android:layout_above="@+id/textView"
+        android:progressDrawable="@drawable/circular"
         android:max="140"
         android:progress="0"
         android:layout_alignParentRight="true"
