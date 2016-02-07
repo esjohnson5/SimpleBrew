@@ -2,6 +2,7 @@ package com.esjohnson.simplebrew;
 
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -18,17 +19,17 @@ public class MainActivity extends ActionBarActivity {
 
     brewDBHandler brewDB;
     ListView brewList;
-
+    Button btnCreateBrew;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //setting UI compnents
-        final Button btnCreateBrew = (Button) findViewById(R.id.btnCreateBrew);
+        //setting UI components
+        btnCreateBrew = (Button) findViewById(R.id.btnCreateBrew);
         brewList = (ListView) findViewById(R.id.brewList);
-        brewDB = new brewDBHandler(this,null,null,1);
         //populates brew table from DB
+        brewDB = new brewDBHandler(this,null,null,1);
         populateBrews();
         //setting the onclick listeners
         btnCreateBrew.setOnClickListener(new View.OnClickListener() {
@@ -42,14 +43,10 @@ public class MainActivity extends ActionBarActivity {
         brewList.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
                 Intent listIntent = new Intent(MainActivity.this,BrewActivity.class);
                 listIntent.putExtra("id",id);
                 Log.d("clicked item"," " + id);
                 startActivity(listIntent);
-                //needs to start intent for listview clicks
-                //should pass database item number or name so brew activity can acccess the
-                //correct brew from the brewDB
             }
         });
 
@@ -71,13 +68,14 @@ public class MainActivity extends ActionBarActivity {
      * populates the brew listview based on the database entries into table_brew
      */
     private void populateBrews(){
-        brewDB = new brewDBHandler(this,null,null,1);
         String[] fromDB = new String[]{ "name" };
         int[] toView = new int[] {android.R.id.text1};
-        SimpleCursorAdapter adapter = new SimpleCursorAdapter(this,android.R.layout.simple_list_item_1,brewDB.getAllNames(),fromDB,toView);
+        SimpleCursorAdapter adapter = new SimpleCursorAdapter(this,android.R.layout.simple_list_item_1,
+                brewDB.getAllNames(),fromDB,toView); //need to update to custom cursor adapter
         brewList = (ListView) findViewById(R.id.brewList);
         brewList.setAdapter(adapter);
     }
+
     //creates new intent for button clicks
     public void sendMessage(View view, int id){
         Intent intent = new Intent(MainActivity.this, BrewActivity.class);
