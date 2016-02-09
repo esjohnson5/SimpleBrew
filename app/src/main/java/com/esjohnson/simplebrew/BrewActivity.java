@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Looper;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,71 +35,56 @@ public class BrewActivity extends FragmentActivity {
     private Cursor brewTimeCursor;
     private long bloomTime;
     private brewTimer brewTimer;
-    private Thread brewThread;
+    private Button btnStart;
     private long stirTime;
     private long brewTime;
-
+    private boolean brewClicked=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_brew);
 
-        brewDB = new brewDBHandler(this,null,null,1);
-        specList = (ListView)findViewById(R.id.specList);
-        textTimer = (TextView) findViewById(R.id.textTimer);
-
-
         //getting extras from intent
         Intent passedIntent = getIntent();
         long id = passedIntent.getLongExtra("id", 0);
 
-        //query and threading for DB brew times
+        //creating all private vars
+        brewDB = new brewDBHandler(this,null,null,1);
+        specList = (ListView)findViewById(R.id.specList);
+        textTimer = (TextView) findViewById(R.id.textTimer);
         brewTimeCursor = brewDB.getAllSpecs(id);
-        Runnable brewTimeRunnable = new Runnable() {
-            @Override
-            public void run() {
-                bloomTime = brewTimeCursor.getLong(brewTimeCursor.getColumnIndex("bloomtime"));
-                stirTime = brewTimeCursor.getLong(brewTimeCursor.getColumnIndex("stirtime"));
-                brewTime = brewTimeCursor.getLong(brewTimeCursor.getColumnIndex("brewtime"));
-            }
-        };
-        Thread brewTimeThread = new Thread(brewTimeRunnable);
-        brewTimeThread.start();
+        brewProgress = (ProgressBar)findViewById(R.id.brewProgress);
+        btnStart = (Button)findViewById(R.id.btnStartBrew);
+
+        //query and threading for DB brew times
+        getBrewTimerSpecs();
+        textTimer.setText(String.format("%d:%02d", (int) ((bloomTime / 1000) / 60),(int) (((bloomTime / 1000) / 60) % 60)));
 
         //setting up cursor adapter and list view
         brewCursorAdapter specListAdapter = new brewCursorAdapter(this, brewDB.getAllSpecs(id),0);
         specList.setAdapter(specListAdapter);
 
-        //TODO create correct total brew time
-        //TODO update progress bar correctly based on bloom,stir,and brew time
-
-        //setting buttons and progress bar
-
-        final Button btnStart = (Button)findViewById(R.id.btnStartBrew);
-        brewProgress = (ProgressBar)findViewById(R.id.brewProgress);
-        brewProgress.setMax(((int)bloomTime+(int)stirTime+(int)brewTime)/1000);
-        brewProgress.setProgress(brewProgress.getMax());
         //setting onclick listener
         btnStart.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     btnStart.setEnabled(false);
+                    brewProgress.setMax(((int) bloomTime + (int) stirTime + (int) brewTime)/1000);
+                    brewProgress.setProgress(((int) bloomTime + (int) stirTime + (int) brewTime)/1000);
                     brewTimer = new brewTimer();
-                    brewTimer.execute((int) bloomTime,(int) stirTime,(int) brewTime);//async task with countdowntimer
-                    //thinking I pass in an array of integers with the three times so the progress
-                    //can update properly, then the bloom+stir+brew, update progress with stir+brew+seconds
-                    //as counts down, add the correct times
-
+                    brewTimer.execute((int) bloomTime,(int) stirTime,(int) brewTime);
+                    brewClicked=true;
                 }
             }
         );
     }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        brewTimer.cancel(true);
+        if(brewClicked) {
+            brewTimer.cancel(true);
+        }
     }
 
     class brewTimer extends AsyncTask<Integer, Integer, String> {
@@ -111,7 +95,8 @@ public class BrewActivity extends FragmentActivity {
         private int bloom;
         private int stir;
         private int brew;
-        //TODO fix this method to correctly count down!!
+
+
         @Override
         protected String doInBackground(Integer... params) {
             long elapsedTime;
@@ -120,7 +105,7 @@ public class BrewActivity extends FragmentActivity {
             bloom = params[0]/1000;
             stir = params[1]/1000;
             brew = params[2]/1000;
-
+            //bloom time
             while (bloom > 0) {
                 elapsedTime = System.currentTimeMillis() - startTime;
                 remainingTime = countIndex - elapsedTime;
@@ -128,33 +113,35 @@ public class BrewActivity extends FragmentActivity {
                 seconds = (int) (remainingTime / 1000);
                 minutes = seconds / 60;
                 seconds = seconds % 60;
-                publishProgress(seconds+stir+brew);
+                publishProgress(bloom/1000+stir+brew);
                 if(isCancelled())
                     break;
             }
             //stir time
-            //TODO
+            countIndex=stir*1000;
+            startTime=System.currentTimeMillis();
             while (stir > 0) {
                 elapsedTime = System.currentTimeMillis() - startTime;
                 remainingTime = countIndex - elapsedTime;
-                bloom = (int) remainingTime;
+                stir = (int) remainingTime;
                 seconds = (int) (remainingTime / 1000);
                 minutes = seconds / 60;
                 seconds = seconds % 60;
-                publishProgress(seconds+stir+brew);
+                publishProgress(stir/1000+brew);
                 if(isCancelled())
                     break;
             }
             //brew time
-            //TODO
-            while (stir > 0) {
+            countIndex=brew*1000;
+            startTime=System.currentTimeMillis();
+            while (brew > 0) {
                 elapsedTime = System.currentTimeMillis() - startTime;
                 remainingTime = countIndex - elapsedTime;
-                bloom = (int) remainingTime;
+                brew = (int) remainingTime;
                 seconds = (int) (remainingTime / 1000);
                 minutes = seconds / 60;
                 seconds = seconds % 60;
-                publishProgress(seconds+stir+brew);
+                publishProgress(brew/1000);
                 if(isCancelled())
                     break;
             }
@@ -175,14 +162,23 @@ public class BrewActivity extends FragmentActivity {
             textTimer.setText("done");
         }
     }
+    private void getBrewTimerSpecs(){
+        Runnable brewTimeRunnable = new Runnable() {
+            @Override
+            public void run() {
+                bloomTime = brewTimeCursor.getLong(brewTimeCursor.getColumnIndex("bloomtime"));
+                stirTime = brewTimeCursor.getLong(brewTimeCursor.getColumnIndex("stirtime"));
+                brewTime = brewTimeCursor.getLong(brewTimeCursor.getColumnIndex("brewtime"));
+            }
+        };
+        Thread brewTimeThread = new Thread(brewTimeRunnable);
+        brewTimeThread.start();
+    }
 }
-
-
-
 
 /**
  * Created by esjoh on 2/3/2016.
- * for brewActivity list population
+ * Cursor Adapter for brewActivity list population!
  */
 class brewCursorAdapter extends CursorAdapter {
     public brewCursorAdapter(Context context, Cursor c, int flags) {

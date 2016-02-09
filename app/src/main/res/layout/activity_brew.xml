@@ -39,7 +39,7 @@
         android:layout_above="@+id/textTimer"
         android:progressDrawable="@drawable/circular"
         android:max="140"
-        android:progress="0"
+        android:progress="140"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
