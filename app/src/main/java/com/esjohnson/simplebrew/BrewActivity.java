@@ -24,7 +24,6 @@ import android.widget.TextView;
  * brewing styles
  * <p>
  * uses the brew class to create a UI with brew instructions for each brew class
- *
  */
 public class BrewActivity extends FragmentActivity {
     //setting those private variables!!
@@ -33,9 +32,9 @@ public class BrewActivity extends FragmentActivity {
     private brewDBHandler brewDB;
     private ListView specList;
     private Cursor brewTimeCursor;
-    private long bloomTime;
     private brewTimer brewTimer;
     private Button btnStart;
+    private long bloomTime;
     private long stirTime;
     private long brewTime;
     private boolean brewClicked=false;
@@ -59,9 +58,8 @@ public class BrewActivity extends FragmentActivity {
 
         //query and threading for DB brew times
         getBrewTimerSpecs();
-        textTimer.setText(String.format("%d:%02d", (int) ((bloomTime / 1000) / 60),(int) (((bloomTime / 1000) / 60) % 60)));
+        textTimer.setText("Click Start");
 
-        //setting up cursor adapter and list view
         brewCursorAdapter specListAdapter = new brewCursorAdapter(this, brewDB.getAllSpecs(id),0);
         specList.setAdapter(specListAdapter);
 
@@ -87,6 +85,32 @@ public class BrewActivity extends FragmentActivity {
         }
     }
 
+    private void getBrewTimerSpecs(){
+        Runnable brewTimeRunnable = new Runnable() {
+            @Override
+            public void run() {
+                bloomTime = brewTimeCursor.getLong(brewTimeCursor.getColumnIndex("bloomtime"));
+                stirTime = brewTimeCursor.getLong(brewTimeCursor.getColumnIndex("stirtime"));
+                brewTime = brewTimeCursor.getLong(brewTimeCursor.getColumnIndex("brewtime"));
+                //final long min = (bloomTime/1000)/60;
+                //final long sec = ((bloomTime/1000)/60)%60;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        textTimer.setText(String.format("%d:%02d", ((bloomTime/1000)/60), (bloomTime/1000)));
+                    }
+                });
+            }
+        };
+        Thread brewTimeThread = new Thread(brewTimeRunnable);
+        brewTimeThread.start();
+    }
+
+    /**
+     * Async Task used to create custom brew timer
+     * brew timer integrates bloom,stir,and brew time into one seamless timer
+     * that updates a total brew time progress bar
+     */
     class brewTimer extends AsyncTask<Integer, Integer, String> {
 
         private long startTime = System.currentTimeMillis();
@@ -96,12 +120,11 @@ public class BrewActivity extends FragmentActivity {
         private int stir;
         private int brew;
 
-
         @Override
         protected String doInBackground(Integer... params) {
             long elapsedTime;
             long countIndex = params[0]; //the countdown time is here!
-            long remainingTime = params[0];
+            long remainingTime;
             bloom = params[0]/1000;
             stir = params[1]/1000;
             brew = params[2]/1000;
@@ -162,51 +185,41 @@ public class BrewActivity extends FragmentActivity {
             textTimer.setText("done");
         }
     }
-    private void getBrewTimerSpecs(){
-        Runnable brewTimeRunnable = new Runnable() {
-            @Override
-            public void run() {
-                bloomTime = brewTimeCursor.getLong(brewTimeCursor.getColumnIndex("bloomtime"));
-                stirTime = brewTimeCursor.getLong(brewTimeCursor.getColumnIndex("stirtime"));
-                brewTime = brewTimeCursor.getLong(brewTimeCursor.getColumnIndex("brewtime"));
-            }
-        };
-        Thread brewTimeThread = new Thread(brewTimeRunnable);
-        brewTimeThread.start();
+
+    /**
+     * Created by esjoh on 2/3/2016.
+     * Cursor Adapter for brewActivity list population!
+     */
+    class brewCursorAdapter extends CursorAdapter {
+        public brewCursorAdapter(Context context, Cursor c, int flags) {
+            super(context, c, flags);
+        }
+
+        @Override
+        public View newView(Context context, Cursor cursor, ViewGroup parent) {
+            return LayoutInflater.from(context).inflate(R.layout.brew_spec_layout, parent, false);
+        }
+
+        @Override
+        public void bindView(View view, Context context, Cursor cursor) {
+            TextView textName = (TextView) view.findViewById(R.id.textName);
+            TextView textBloom = (TextView) view.findViewById(R.id.textBloom);
+            TextView textStir = (TextView) view.findViewById(R.id.textStir);
+            TextView textBrew = (TextView) view.findViewById(R.id.textBrew);
+
+            String name = cursor.getString(cursor.getColumnIndex("name"));
+            long bloom = cursor.getLong(cursor.getColumnIndex("bloomtime"));
+            long stir = cursor.getLong(cursor.getColumnIndex("stirtime"));
+            long brew = cursor.getLong(cursor.getColumnIndex("brewtime"));
+
+            textName.setText(name);
+            textBloom.setText(String.valueOf(bloom));
+            textStir.setText(String.valueOf(stir));
+            textBrew.setText(String.valueOf(brew));
+        }
     }
+
 }
 
-/**
- * Created by esjoh on 2/3/2016.
- * Cursor Adapter for brewActivity list population!
- */
-class brewCursorAdapter extends CursorAdapter {
-    public brewCursorAdapter(Context context, Cursor c, int flags) {
-        super(context, c, flags);
-    }
-
-    @Override
-    public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        return LayoutInflater.from(context).inflate(R.layout.brew_spec_layout, parent, false);
-    }
-
-    @Override
-    public void bindView(View view, Context context, Cursor cursor) {
-        TextView textName = (TextView) view.findViewById(R.id.textName);
-        TextView textBloom = (TextView) view.findViewById(R.id.textBloom);
-        TextView textStir = (TextView) view.findViewById(R.id.textStir);
-        TextView textBrew = (TextView) view.findViewById(R.id.textBrew);
-
-        String name = cursor.getString(cursor.getColumnIndex("name"));
-        long bloom = cursor.getLong(cursor.getColumnIndex("bloomtime"));
-        long stir = cursor.getLong(cursor.getColumnIndex("stirtime"));
-        long brew = cursor.getLong(cursor.getColumnIndex("brewtime"));
-
-        textName.setText(name);
-        textBloom.setText(String.valueOf(bloom));
-        textStir.setText(String.valueOf(stir));
-        textBrew.setText(String.valueOf(brew));
-    }
-}
 
 
