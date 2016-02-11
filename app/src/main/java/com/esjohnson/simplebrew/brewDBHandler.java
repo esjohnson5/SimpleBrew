@@ -63,9 +63,9 @@ public class brewDBHandler extends SQLiteOpenHelper {
         db.close();
     }
     //deletes product from the database
-    public void deleteBrew(String brewName){
+    public void deleteBrewById(int _id){
         SQLiteDatabase db  = getWritableDatabase();
-        db.execSQL("DELETE FROM " + TABLE_BREW + " WHERE " + COLUMN_NAME + "=\"" + brewName + "\";");
+        db.execSQL("DELETE FROM " + TABLE_BREW + " WHERE " + COLUMN_ID + "=\"" + _id + "\";");
     }
     public String databaseToString(){
         String dbString = "";

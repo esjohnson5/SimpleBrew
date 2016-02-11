@@ -7,13 +7,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/brewName"
+        android:inputType="textCapWords"
+        android:maxLines="1"
+        android:imeOptions="actionNext"
+        android:hint="Name"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="70dp"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:text="Brew Name" />
+        android:layout_alignParentEnd="true" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -24,7 +26,10 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:text="Brew Grind" />
+        android:inputType="textCapWords"
+        android:maxLines="1"
+        android:imeOptions="actionNext"
+        android:hint="Brew Grind" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -35,7 +40,10 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:text="Amount of Beans" />
+        android:inputType="number"
+        android:maxLines="1"
+        android:imeOptions="actionNext"
+        android:hint="Amount of Beans" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -46,7 +54,10 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:text="Bloom Time" />
+        android:inputType="number"
+        android:maxLines="1"
+        android:imeOptions="actionNext"
+        android:hint="Bloom Time" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -57,7 +68,10 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:text="Stir Time" />
+        android:inputType="number"
+        android:maxLines="1"
+        android:imeOptions="actionNext"
+        android:hint="Stir Time" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -68,7 +82,10 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:text="Brew Time" />
+        android:inputType="number"
+        android:maxLines="1"
+        android:imeOptions="actionDone"
+        android:hint="Brew Time" />
 
     <Button
         android:layout_width="wrap_content"
@@ -79,5 +96,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
+        android:inputType="number"
+        android:maxLines="1"
         android:layout_alignParentStart="true" />
 </RelativeLayout>

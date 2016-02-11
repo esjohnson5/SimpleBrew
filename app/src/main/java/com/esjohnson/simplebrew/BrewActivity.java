@@ -58,7 +58,6 @@ public class BrewActivity extends FragmentActivity {
 
         //query and threading for DB brew times
         getBrewTimerSpecs();
-        textTimer.setText("Click Start");
 
         brewCursorAdapter specListAdapter = new brewCursorAdapter(this, brewDB.getAllSpecs(id),0);
         specList.setAdapter(specListAdapter);
@@ -92,8 +91,7 @@ public class BrewActivity extends FragmentActivity {
                 bloomTime = brewTimeCursor.getLong(brewTimeCursor.getColumnIndex("bloomtime"));
                 stirTime = brewTimeCursor.getLong(brewTimeCursor.getColumnIndex("stirtime"));
                 brewTime = brewTimeCursor.getLong(brewTimeCursor.getColumnIndex("brewtime"));
-                //final long min = (bloomTime/1000)/60;
-                //final long sec = ((bloomTime/1000)/60)%60;
+
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
