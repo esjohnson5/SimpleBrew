@@ -19,29 +19,29 @@ public class OnSwipeTouchListener implements View.OnTouchListener {
     private Context context;
     private Button btnDelete;
 
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        btnDelete = (Button) v.findViewById(R.id.btnDelete);
-        if(gestureDetector.onTouchEvent(event)){
-            return true;
-        }else{
-            return false;
-        }
-    }
     public OnSwipeTouchListener(Context context,ListView brewList) {
         gestureDetector = new GestureDetector(context, new GestureListener());
         this.brewList = brewList;
         this.context = context;
 
     }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        brewList = (ListView) v.findViewById(R.id.brewList);
+        if(gestureDetector.onTouchEvent(event)){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
     public void onSwipeRight(int pos) {
         Log.d("swipe", "swiped right: " + pos);
-        btnDelete.setVisibility(View.GONE);
     }
 
     public void onSwipeLeft(int pos) {
-        Log.d("swipe","swiped left: " + pos);
-        btnDelete.setVisibility(View.VISIBLE);
+        Log.d("swipe", "swiped left: " + pos);
     }
 
     private final class GestureListener extends GestureDetector.SimpleOnGestureListener{
