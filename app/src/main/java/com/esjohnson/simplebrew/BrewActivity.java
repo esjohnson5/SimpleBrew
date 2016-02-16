@@ -188,6 +188,9 @@ public class BrewActivity extends FragmentActivity {
      * Created by esjoh on 2/3/2016.
      * Cursor Adapter for brewActivity list population!
      */
+
+    //TODO use view holder here
+
     class brewCursorAdapter extends CursorAdapter {
         public brewCursorAdapter(Context context, Cursor c, int flags) {
             super(context, c, flags);

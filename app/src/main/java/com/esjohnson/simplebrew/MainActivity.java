@@ -80,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+    //TODO use view holder here
 
     class brewCursorAdapter extends CursorAdapter {
         public brewCursorAdapter(Context context, Cursor c, int flags) {
