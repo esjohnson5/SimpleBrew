@@ -4,7 +4,6 @@ package com.esjohnson.simplebrew;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -17,19 +16,19 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 
 public class MainActivity extends AppCompatActivity {
 
     brewDBHandler brewDB;
-    ListView brewList;
     Button btnCreateBrew;
+    ListView brewList;
     brewCursorAdapter mainBrewListAdapter;
     OnSwipeTouchListener swipeListener;
     Cursor brewListCursor;
 
+    //TODO change everything I did to a recyclerview
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
 
         //populates brew table from DB
         brewDB = new brewDBHandler(this,null,null,1);
-        //populateBrews();
         brewListCursor = brewDB.getAllNames();
         mainBrewListAdapter = new brewCursorAdapter(this,brewListCursor,0);
         brewList.setAdapter(mainBrewListAdapter);
@@ -74,43 +72,56 @@ public class MainActivity extends AppCompatActivity {
         if(requestCode == 1){
             if(resultCode == RESULT_OK){
                 mainBrewListAdapter.changeCursor(brewDB.getAllNames());
+                //mainBrewListAdapter.notifyDataSetChanged();
             }
             if(resultCode == RESULT_CANCELED){
                 //did not complete form....
             }
         }
     }
-    //TODO use view holder here
 
     class brewCursorAdapter extends CursorAdapter {
+        private LayoutInflater inflater;
+
+        private class ViewHolder{
+            TextView textName;
+            Button btnDelete;
+        }
+
         public brewCursorAdapter(Context context, Cursor c, int flags) {
             super(context, c, flags);
         }
 
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            return LayoutInflater.from(context).inflate(R.layout.main_brew_list, parent, false);
+            inflater = LayoutInflater.from(context);
+            View view = inflater.inflate(R.layout.main_brew_list,parent,false);
+            ViewHolder holder = new ViewHolder();
+            holder.btnDelete = (Button) view.findViewById(R.id.btnDelete);
+            holder.textName = (TextView) view.findViewById(R.id.textName);
+            view.setTag(holder);
+            return view;
         }
 
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
+
             //Setting Text Field
-            TextView textName = (TextView) view.findViewById(R.id.textName);
+            ViewHolder holder = (ViewHolder) view.getTag();
             String name = cursor.getString(cursor.getColumnIndex("name"));
-            textName.setText(name);
-            //deleting item upon button click
             final int _id = cursor.getInt(cursor.getColumnIndex("_id"));
-            Button btnDelete = (Button) view.findViewById(R.id.btnDelete);
-            btnDelete.setOnClickListener(new View.OnClickListener() {
+            holder.textName.setText(name);
+
+            //deleting item upon button click
+            holder.btnDelete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //delete method here.....
-                    Log.d("click","clicked");
                     brewDB.deleteBrewById(_id);
-                    mainBrewListAdapter.changeCursor(brewDB.getAllNames());
+                    Cursor newCursor = getCursor();
+                    changeCursor(newCursor);
+                    notifyDataSetChanged();
                 }
             });
-
         }
     }
 
@@ -133,4 +144,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
 }
