@@ -39,6 +39,12 @@ public class BrewActivity extends FragmentActivity {
     private long brewTime;
     private boolean brewClicked=false;
 
+    final static int MILLIS_2_SECONDS = 1000;
+
+    //TODO dynamic text field in timer that changes based on progress of brew
+    //TODO center time in progress bar
+    //TODO fix brew specs display, change from list view to...something better
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,14 +58,14 @@ public class BrewActivity extends FragmentActivity {
         brewDB = new brewDBHandler(this,null,null,1);
         specList = (ListView)findViewById(R.id.specList);
         textTimer = (TextView) findViewById(R.id.textTimer);
-        brewTimeCursor = brewDB.getAllSpecs(id);
+        brewTimeCursor = brewDB.getBrewRowById(id);
         brewProgress = (ProgressBar)findViewById(R.id.brewProgress);
         btnStart = (Button)findViewById(R.id.btnStartBrew);
 
         //query and threading for DB brew times
         getBrewTimerSpecs();
 
-        brewCursorAdapter specListAdapter = new brewCursorAdapter(this, brewDB.getAllSpecs(id),0);
+        brewCursorAdapter specListAdapter = new brewCursorAdapter(this, brewDB.getBrewRowById(id),0);
         specList.setAdapter(specListAdapter);
 
         //setting onclick listener
@@ -214,9 +220,9 @@ public class BrewActivity extends FragmentActivity {
             long brew = cursor.getLong(cursor.getColumnIndex("brewtime"));
 
             textName.setText(name);
-            textBloom.setText(String.valueOf(bloom));
-            textStir.setText(String.valueOf(stir));
-            textBrew.setText(String.valueOf(brew));
+            textBloom.setText(String.valueOf(bloom/MILLIS_2_SECONDS));
+            textStir.setText(String.valueOf(stir/MILLIS_2_SECONDS));
+            textBrew.setText(String.valueOf(brew/MILLIS_2_SECONDS));
         }
     }
 

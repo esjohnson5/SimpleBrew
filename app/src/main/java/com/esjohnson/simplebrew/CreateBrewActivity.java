@@ -13,8 +13,13 @@ import android.widget.EditText;
  * activity to create your own brew which is stored locally in the brewDB
  *
  */
+    //TODO create proper layout eventually
+    //TODO add brew apparatus selection based on apparatus in DB
+
 public class CreateBrewActivity extends FragmentActivity {
-    //vars
+    final static int SECONDS_2_MILLIS = 1000;
+
+    //text fields
     brewDBHandler brewDB;
     EditText brewName;
     EditText brewGrind;
@@ -24,6 +29,15 @@ public class CreateBrewActivity extends FragmentActivity {
     EditText brewTime;
     Button create;
     boolean itemCreated = false;
+
+    //number vars
+    int amount;
+    long bloom;
+    long stir;
+    long brew;
+    String name;
+    String grind;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +61,12 @@ public class CreateBrewActivity extends FragmentActivity {
                 brewRun = new Runnable() {
                     @Override
                     public void run() {
+                        name = brewName.getText().toString();
+                        grind = brewGrind.getText().toString();
+                        amount = Integer.parseInt(brewAmount.getText().toString());
+                        brew = Long.parseLong(brewTime.getText().toString())*SECONDS_2_MILLIS;
+                        bloom = Long.parseLong(brewBloom.getText().toString())*SECONDS_2_MILLIS;
+                        stir = Long.parseLong(brewStir.getText().toString())*SECONDS_2_MILLIS;
                         brewDB.addBrew(createBrewObj());
                         sendBack();
                     }
@@ -77,9 +97,7 @@ public class CreateBrewActivity extends FragmentActivity {
      * @return brewObj to be sent to the DB
      */
     private brew createBrewObj(){
-        brew userBrew = new brew(brewName.getText().toString(),brewGrind.getText().toString(),
-                Integer.parseInt(brewAmount.getText().toString()),Long.parseLong(brewTime.getText().toString()),
-                Long.parseLong(brewBloom.getText().toString()),Long.parseLong(brewStir.getText().toString()));
+        brew userBrew = new brew(name,grind,amount,brew,bloom,stir);
         itemCreated = true;
         return userBrew;
     }

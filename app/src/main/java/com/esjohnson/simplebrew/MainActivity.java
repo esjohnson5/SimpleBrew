@@ -29,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
     Cursor brewListCursor;
 
     //TODO change everything I did to a recyclerview
+    //TODO deal with DI
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
         //populates brew table from DB
         brewDB = new brewDBHandler(this,null,null,1);
-        brewListCursor = brewDB.getAllNames();
+        brewListCursor = brewDB.getAllBrewNames();
         mainBrewListAdapter = new brewCursorAdapter(this,brewListCursor,0);
         brewList.setAdapter(mainBrewListAdapter);
         brewList.setOnTouchListener(swipeListener);
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == 1){
             if(resultCode == RESULT_OK){
-                mainBrewListAdapter.changeCursor(brewDB.getAllNames());
+                mainBrewListAdapter.changeCursor(brewDB.getAllBrewNames());
                 //mainBrewListAdapter.notifyDataSetChanged();
             }
             if(resultCode == RESULT_CANCELED){
@@ -117,9 +119,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     brewDB.deleteBrewById(_id);
-                    Cursor newCursor = getCursor();
-                    changeCursor(newCursor);
-                    notifyDataSetChanged();
+                    mainBrewListAdapter.changeCursor(brewDB.getAllBrewNames());
                 }
             });
         }

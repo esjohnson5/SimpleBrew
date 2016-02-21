@@ -18,8 +18,6 @@ public class brew {
     private long brewTimeMillis;
     private long stirTimeMillis;
 
-
-
     /**
      * constructor for brew object - call be passed NULL references when a brew does not contain
      * one of the following methods
@@ -30,6 +28,7 @@ public class brew {
      * @param bloomTimeMillis time of bloom
      * @param stirTimeMillis time of stir
      */
+    //TODO DI with brew apparatus
 
     public brew(String name, String grind, int amount, long brewTimeMillis, long bloomTimeMillis, long stirTimeMillis){
         this.name = name;
@@ -67,6 +66,7 @@ public class brew {
     public void setStirTimeMillis(long stirTimeMillis){
         this.stirTimeMillis = stirTimeMillis;
     }
+
     //getters
 
     public long getId() {
